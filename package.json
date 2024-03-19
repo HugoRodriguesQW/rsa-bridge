@@ -1,0 +1,26 @@
+{
+  "name": "rsa-bridge",
+  "version": "1.0.0",
+  "description": "Encrypted communication bridge using RSA keys between frontend and backend",
+  "main": "rsa.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HugoRodriguesQW/rsa-bridge.git"
+  },
+  "keywords": [
+    "rsa",
+    "cryptography",
+    "comunication",
+    "frontend",
+    "backend"
+  ],
+  "author": "HugoRodriguesQW",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HugoRodriguesQW/rsa-bridge/issues"
+  },
+  "homepage": "https://github.com/HugoRodriguesQW/rsa-bridge#readme"
+}
