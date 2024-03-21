@@ -30,7 +30,13 @@
   "homepage": "https://github.com/HugoRodriguesQW/rsa-bridge#readme",
   "devDependencies": {
     "@types/node": "^20.11.30",
+    "@types/node-rsa": "^1.1.4",
+    "express": "^4.19.1",
     "shx": "^0.3.4",
     "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "node-rsa": "^1.1.1"
   }
 }
