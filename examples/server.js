@@ -7,7 +7,7 @@ const rsa = new ServerRSA({
   bits: 1024,
   refuseUnencrypted: true,
   keys: {
-    format: "public",
+    format: "pkcs1",
     private: `-----BEGIN RSA PRIVATE KEY-----
     MIICXQIBAAKBgQCMHEeN+CZiRmkSNDq4cHWH2JQCE83js1zA/La3ZQ+zvnwUVlEa
     /Xz42MX6LLm5FlQ4Arpl8hHcvznVaebTwTEO097YeSp+VwwYaEoadTeMckniSY6C
