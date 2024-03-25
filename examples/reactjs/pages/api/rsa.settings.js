@@ -1,5 +1,5 @@
 /**
- *@type {import("@hugorodriguesqw/rsa-bridge/dist/modules/basic").BasicRSAConfig} - config
+ *@type {import("rsa-bridge/dist/modules/basic").BasicRSAConfig} - config
  */
 const config = {
   keys: {

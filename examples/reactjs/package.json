@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "link": "cd ../../ && npm link && cd ./examples/reactjs && npm link @hugorodriguesqw/rsa-bridge",
-    "update-link": "npm run link && npm install @hugorodriguesqw/rsa-bridge"
+    "link": "cd ../../ && npm link && cd ./examples/reactjs && npm link rsa-bridge",
+    "update-link": "npm run link && npm install"
   },
   "dependencies": {
-    "@hugorodriguesqw/rsa-bridge": "file:../..",
+    "rsa-bridge": "file:../..",
     "next": "14.1.4",
     "react": "^18",
     "react-dom": "^18"

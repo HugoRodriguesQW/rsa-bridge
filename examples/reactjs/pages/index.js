@@ -1,7 +1,7 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 
-import { RSAClient } from "@hugorodriguesqw/rsa-bridge";
+import { RSAClient } from "rsa-bridge";
 
 const rsa = new RSAClient({ bits: 1024 });
 
