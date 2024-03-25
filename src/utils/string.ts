@@ -1,7 +1,7 @@
-export default function f(text: string, format: BufferEncoding) {
+export default function f(text: string, code: BufferEncoding) {
   return {
-    to: (newFormat: BufferEncoding) => {
-      return Buffer.alloc(text.length, text, format).toString(newFormat);
+    to: (newcode: BufferEncoding) => {
+      return Buffer.alloc(text.length, text, code).toString(newcode);
     },
   };
 }
