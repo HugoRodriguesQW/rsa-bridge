@@ -11,7 +11,7 @@
     "update-link": "npm run link && npm install"
   },
   "dependencies": {
-    "rsa-bridge": "file:../..",
+    "rsa-bridge": "file:../.. || ^1.0.1",
     "next": "14.1.4",
     "react": "^18",
     "react-dom": "^18"
