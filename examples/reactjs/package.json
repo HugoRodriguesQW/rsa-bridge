@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "link": "cd ../../ && npm link && cd ./examples/reactjs && npm link rsa-bridge",
-    "update-link": "npm run link && npm install"
+    "lint": "next lint"
   },
   "dependencies": {
     "next": "14.1.4",

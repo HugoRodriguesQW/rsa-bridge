@@ -1,6 +1,5 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
-
 import { RSAClient } from "rsa-bridge";
 
 const rsa = new RSAClient({ bits: 1024 });
@@ -34,7 +33,6 @@ export default function Home() {
         console.info(">", response);
         setOutput(body);
         setResStatus(response.status);
-  
       })
       .catch((err) => {
         console.warn(err);
