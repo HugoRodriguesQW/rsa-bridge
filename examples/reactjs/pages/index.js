@@ -12,7 +12,7 @@ export default function Home() {
   const [output, setOutput] = useState("");
 
   useEffect(() => {
-    rsa.connect("http://localhost:3000/api/publickey");
+    rsa.connect(`${window.location.origin}/api/publickey`);
 
     rsa.on("connecting", () => {
       setStatus(1);
@@ -25,7 +25,7 @@ export default function Home() {
 
   function send() {
     rsa
-      .fetch("http://localhost:3000/api/hi", {
+      .fetch(`${window.location.origin}/api/hi`, {
         body: input,
         method: "POST",
       })
