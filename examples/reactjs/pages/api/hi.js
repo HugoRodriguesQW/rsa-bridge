@@ -7,7 +7,7 @@ export default new RSAServer(setting).gate((req, res) => {
   req.body = req.body?.toLowerCase();
 
   if (req.body?.includes("hi") || req.body?.includes("hello")) {
-    res.status(200).send("Hello from here, how are you?");
+    return res.status(200).send("Hello from here, how are you?");
   }
 
   res.status(300).send("Try starting over with 'hi'");
