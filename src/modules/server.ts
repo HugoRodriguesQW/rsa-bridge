@@ -27,9 +27,11 @@ export class RSAServer extends BasicRSA {
     };
   }
 
-  gate(handle: Handler): Handler {
-    (handle as Preserved<Handler>).__preserved = handle.bind(handle);
-    const PreservedSend = handle as Preserved<Handler>;
+  gate(handler?: Handler): Handler {
+    if (handler)
+      (handler as Preserved<Handler>).__preserved = handler?.bind(handler);
+
+    const PreservedSend = handler as Preserved<Handler>;
 
     return async (req, res, ...props) => {
       const clientKey = req.headers["x-client-key"];
@@ -49,7 +51,13 @@ export class RSAServer extends BasicRSA {
 
       res.removeHeader?.("x-client-key");
       res.send = this.injectedSend(res.send.bind(res), clientKey);
-      return PreservedSend.__preserved.call(handle, ...[req, res, ...props]);
+      if (handler) {
+        return PreservedSend.__preserved.call(handler, ...[req, res, ...props]);
+      }
+
+      if (typeof props[0] === "function") {
+        return props[0]();
+      }
     };
   }
 
