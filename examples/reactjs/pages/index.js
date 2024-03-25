@@ -1,15 +1,16 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 
-import { ClientRSA } from "@hugorodriguesqw/rsa-bridge";
+import { RSAClient } from "@hugorodriguesqw/rsa-bridge";
 
-const rsa = new ClientRSA({ bits: 1024 });
+const rsa = new RSAClient({ bits: 1024 });
 
 export default function Home() {
   const statusOptions = ["disconnected", "connecting", "connected"];
   const [status, setStatus] = useState(0);
+  const [resStatus, setResStatus] = useState("");
   const [input, setInput] = useState("");
-  const [output, setOutput] = useState("")
+  const [output, setOutput] = useState("");
 
   useEffect(() => {
     rsa.connect("http://localhost:3000/api/publickey");
@@ -24,17 +25,21 @@ export default function Home() {
   }, []);
 
   function send() {
-    console.info("> sending data");
     rsa
       .fetch("http://localhost:3000/api/hi", {
-        body: JSON.stringify(input),
+        body: input,
         method: "POST",
       })
-      .then((response) => {
-        console.info(response)
-        setOutput(response)
+      .then(({ body, response }) => {
+        console.info(">", response);
+        setOutput(body);
+        setResStatus(response.status);
+  
       })
-      .catch(console.warn);
+      .catch((err) => {
+        console.warn(err);
+        setResStatus(-1);
+      });
   }
 
   return (
@@ -83,10 +88,25 @@ export default function Home() {
             <span
               style={{ marginLeft: "10px", fontStyle: "italic", color: "gray" }}
             >
-              status: <span style={{ color: "lightblue" }}>{}</span>
+              status:{" "}
+              <span
+                style={{
+                  color: { 200: "green", 300: "orange" }[resStatus] || "red",
+                }}
+              >
+                {resStatus}
+              </span>
             </span>
           </p>
-          <span>{output}</span>
+          <span
+            style={{
+              boxShadow: "0 0 3px 3px rgba(0,0,0,0.05)",
+              padding: "5px",
+              background: "rgba(167,167,255, 0.4)",
+            }}
+          >
+            {output}
+          </span>
         </div>
       </div>
     </>

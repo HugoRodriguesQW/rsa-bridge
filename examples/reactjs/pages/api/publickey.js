@@ -1,5 +1,4 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import setting from "./rsa.settings";
+import { RSAServer } from "@hugorodriguesqw/rsa-bridge";
 
-
-const rsa = new ServerRSA(rsaSettings);
-export default rsa.propagateKey();
+export default new RSAServer(setting).publish();

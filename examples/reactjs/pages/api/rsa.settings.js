@@ -1,6 +1,7 @@
-export default {
-  bits: 1024,
-  refuseUnencrypted: true,
+/**
+ *@type {import("@hugorodriguesqw/rsa-bridge/dist/modules/basic").BasicRSAConfig} - config
+ */
+const config = {
   keys: {
     private: `-----BEGIN RSA PRIVATE KEY-----
         MIICXQIBAAKBgQCMHEeN+CZiRmkSNDq4cHWH2JQCE83js1zA/La3ZQ+zvnwUVlEa
@@ -25,3 +26,5 @@ export default {
         -----END PUBLIC KEY-----`,
   },
 };
+
+export default config;
