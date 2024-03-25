@@ -258,7 +258,7 @@ describe("Server Validation", () => {
       send(JSON.stringify(data));
     }
 
-    rsa.publish()(null, {
+    rsa.publish(null, {
       json,
       send,
     });

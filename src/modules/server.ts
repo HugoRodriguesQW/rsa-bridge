@@ -3,7 +3,6 @@ import { BasicRSA, BasicRSAConfig } from "./basic";
 import f from "../utils/string";
 
 type Preserved<T> = T & { __preserved: T };
-type DefaultHandler = (req: any, res: any, ...unused: any) => any;
 
 export interface ExtendedRequest extends Express.Request {
   RSA: RSAServer;
@@ -15,16 +14,14 @@ export class RSAServer extends BasicRSA {
   }
 
   /** Returns an http handler responsible for exposing the public key of the RSA service */
-  publish(): DefaultHandler {
-    return (_, res: Express.Response) => {
-      if (typeof res.contentType === "function") res.contentType("text");
-      if (typeof res.status === "function") res.status(200);
+  publish(_: any, res: any) {
+    if (typeof res?.contentType === "function") res.contentType("text");
+    if (typeof res?.status === "function") res.status(200);
 
-      return res.json({
-        key: this.publicKey("public"),
-        format: "public",
-      });
-    };
+    return res?.json({
+      key: this.publicKey("public"),
+      format: "public",
+    });
   }
 
   gate(handler?: Handler): Handler {
