@@ -1,4 +1,5 @@
 import NodeRSA from "node-rsa";
+import f from "../utils/string";
 
 export interface BasicRSAConfig {
   keys?: {
@@ -6,7 +7,7 @@ export interface BasicRSAConfig {
     private: string;
     format?: BasicKeyFormats | NodeRSA.Format;
   };
-  bits: 512 | 1024 | 2048 | 4096;
+  bits?: 512 | 1024 | 2048 | 4096;
 }
 
 type BasicKeyFormats = {
@@ -22,12 +23,12 @@ export class BasicRSA {
   decoder: NodeRSA;
   keyFormats: BasicKeyFormats;
 
-  constructor(setting: BasicRSAConfig) {
+  constructor(setting?: BasicRSAConfig) {
     this.keyFormats = {} as BasicKeyFormats;
     this.encoder = this.decoder = {} as NodeRSA;
 
-    this.importKeyFormats(setting.keys);
-    this.generateNodes(setting.keys, setting.bits);
+    this.importKeyFormats(setting?.keys);
+    this.generateNodes(setting?.keys, setting?.bits);
   }
 
   encrypt(data: string) {
@@ -43,8 +44,10 @@ export class BasicRSA {
     return customEncoder.encrypt(data, "base64");
   }
 
-  publicKey(customFormat?: NodeRSA.FormatPem) {
-    return this.encoder.exportKey(customFormat || "public");
+  publicKey(customFormat?: NodeRSA.FormatPem, encoding?: BufferEncoding) {
+    const key = this.encoder.exportKey(customFormat || "public");
+    if (!encoding) return key;
+    return f(key, "utf8").to(encoding);
   }
 
   private importKeyFormats(keys: BasicRSAConfig["keys"]) {
@@ -62,22 +65,17 @@ export class BasicRSA {
         private: "private",
       };
     }
-
-    console.info({
-      ...this.keyFormats,
-    });
   }
 
   private generateNodes(
     keys: BasicRSAConfig["keys"],
     bits: BasicRSAConfig["bits"]
   ) {
-    console.info({ keys });
     if (keys) {
       this.encoder = new NodeRSA(keys.public, this.keyFormats.public);
       this.decoder = new NodeRSA(keys.private, this.keyFormats.private);
     } else {
-      this.encoder = this.decoder = new NodeRSA({ b: bits });
+      this.encoder = this.decoder = new NodeRSA({ b: bits ?? 1024 });
     }
   }
 }

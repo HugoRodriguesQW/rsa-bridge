@@ -1,28 +1,20 @@
-import Express, { Send } from "express";
+import Express, { Handler, Send } from "express";
 import { BasicRSA, BasicRSAConfig } from "./basic";
+import f from "../utils/string";
 
-interface RSAServerConfig extends BasicRSAConfig {
-  allowUnencryptedIn?: boolean;
-}
-
+type Preserved<T> = T & { __preserved: T };
 type DefaultHandler = (req: any, res: any, ...unused: any) => any;
 
-interface CustomHttpSend extends Send {
-  ___preserved: Send;
+export interface ExtendedRequest extends Express.Request {
+  RSA: RSAServer;
 }
 
-export type RSARequestBody = {
-  ___RSADATA: RequestInit["body"];
-};
-
 export class RSAServer extends BasicRSA {
-  allowUnencryptedIn: boolean;
-
-  constructor(settings: RSAServerConfig) {
+  constructor(settings: BasicRSAConfig) {
     super(settings);
-    this.allowUnencryptedIn = settings.allowUnencryptedIn || false;
   }
 
+  /** Returns an http handler responsible for exposing the public key of the RSA service */
   publish(): DefaultHandler {
     return (_, res: Express.Response) => {
       if (typeof res.contentType === "function") res.contentType("text");
@@ -35,91 +27,67 @@ export class RSAServer extends BasicRSA {
     };
   }
 
-  handler(): Express.RequestHandler {
-    const RSA = this;
+  gate(handle: Handler): Handler {
+    (handle as Preserved<Handler>).__preserved = handle.bind(handle);
+    const PreservedSend = handle as Preserved<Handler>;
 
-    return async (req, res, next) => {
-      Object.assign(req, { RSA: this });
+    return async (req, res, ...props) => {
+      const clientKey = req.headers["x-client-key"];
+      if (!clientKey?.length) return this.refuse(res, 400);
 
-      function resolveRequest() {
-        if (typeof req.body === "string") {
-          try {
-            req.body = JSON.parse(req.body);
-          } catch {
-            return refuseOrNext(RSA.allowUnencryptedIn);
-          }
+      req.body = await this.readRequestDataFrom(req);
+
+      if (req.body) {
+        try {
+          req.body = this.decrypt(req.body);
+        } catch {
+          return this.refuse(res);
         }
-
-        const ___RSADATA = (req.body as RSARequestBody)?.___RSADATA;
-        const ___CLIENTKEY = req.headers["x-client-token"] as string;
-
-        if (!___CLIENTKEY.length) {
-          return refuseOrNext(true);
-        }
-
-        const wrapSend = (send: CustomHttpSend, RSA: RSAServer) => {
-          send.___preserved = send;
-
-          return (data: any) => {
-            try {
-              const encrypted = RSA.encryptWithKey(
-                ___CLIENTKEY,
-                typeof data === "string" ? data : JSON.stringify(data)
-              );
-
-              return send.___preserved.call(
-                RSA,
-                JSON.stringify({
-                  ___RSADATA: encrypted,
-                })
-              );
-            } catch (err) {
-              res.status(500);
-              return send.___preserved.call(
-                RSA,
-                "Error trying to encrypt response data"
-              );
-            }
-          };
-        };
-
-        (res.send as any) = wrapSend(res.send.bind(res) as CustomHttpSend, RSA);
-
-        Object.assign(req, { CLIENTKEY: ___CLIENTKEY });
-        if (___RSADATA) {
-          try {
-            (req.body as any) = RSA.decrypt(___RSADATA as string);
-            console.info("next called");
-            return next();
-          } catch {
-            console.info("payload encrypted with a unknown key");
-            return refuseOrNext(RSA.allowUnencryptedIn);
-          }
-        }
-
-        console.info("next called");
-
-        next();
       }
 
-      const refuseOrNext = (condition: boolean) => {
-        if (condition) {
-          return res.status(400).send("request refused by rsa service");
-        }
-        console.info("next called");
-        return next();
-      };
+      Object.assign(req, { RSA: this });
 
-      if (!req.readable) return resolveRequest();
+      res.removeHeader?.("x-client-key");
+      res.send = this.injectedSend(res.send.bind(res), clientKey);
+      return PreservedSend.__preserved.call(handle, ...[req, res, ...props]);
+    };
+  }
 
-      req.body = "";
+  injectedSend(send: Send, key: string | string[]): Send {
+    (send as Preserved<Send>).__preserved = send;
+    const PreservedSend = send as Preserved<Send>;
+
+    const utfKey = f(Array.isArray(key) ? key.join("") : key, "base64").to(
+      "utf8"
+    );
+
+    return (data) => {
+      try {
+        const encrypted = this.encryptWithKey(utfKey, data, "public");
+        return PreservedSend.__preserved.call(this, encrypted);
+      } catch (err) {
+        throw new Error("error injecting rsa in response " + err);
+      }
+    };
+  }
+
+  private readRequestDataFrom(req: Express.Request): Promise<any> {
+    return new Promise((r, j) => {
+      if (req.readable !== true) r(req.body);
+
+      let data = "";
 
       req.on("data", (chunk) => {
-        console.info("receiving data");
-        req.body += chunk;
+        data += chunk;
       });
 
-      req.on("end", resolveRequest);
-    };
+      req.on("error", j);
+      req.on("close", j);
+      req.on("end", () => r(data));
+    });
+  }
+
+  private refuse(res: Express.Response, code?: number) {
+    return res.status(code || 500).send("refused by rsa service");
   }
 }
