@@ -33,7 +33,7 @@ RSA Bridge Client Instance
 import { RSAClient } from "rsa-bridge";
 const rsa = new RSAClient({ bits: 1024 });
 
-rsa.connect();
+rsa.connect(PATH);
 rsa.fetch(INPUT, OPTIONS);
 ```
 
